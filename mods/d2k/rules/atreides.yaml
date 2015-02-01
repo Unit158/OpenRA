@@ -119,21 +119,6 @@ MCVA.starport:
 	Valued:
 		Cost: 2500
 
-CARRYALLA:
-	Inherits: ^CARRYALL
-	RenderUnit:
-		Image: CARRYALL
-	Buildable:
-		Prerequisites: refinery, ~hightecha
-
-CARRYALLA.starport:
-	Inherits: CARRYALLA
-	Valued:
-		Cost: 1500
-	Buildable:
-		Prerequisites: ~starporta
-		Queue: Starport
-
 COMBATA:
 	Inherits: ^COMBAT
 	Buildable:

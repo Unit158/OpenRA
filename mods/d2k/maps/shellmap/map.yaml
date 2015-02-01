@@ -128,7 +128,7 @@ Rules:
 			Scripts: shellmap.lua
 	REFA:
 		-FreeActor:
-	CARRYALLA:
+	CARRYALL.auto:
 		-AutoCarryall:
 		Helicopter:
 			CruiseAltitude: 2048

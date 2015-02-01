@@ -78,9 +78,7 @@ Player:
 			pwrh: 10%
 			pwro: 10%
 		UnitsToBuild:
-			carryalla: 1%
-			carryallh: 1%
-			carryallo: 1%
+			carryall.auto: 1%
 			rifle: 6%
 			bazooka: 5%
 			medic: 1%
@@ -240,9 +238,7 @@ Player:
 			pwrh: 12%
 			pwro: 12%
 		UnitsToBuild:
-			carryalla: 1%
-			carryallh: 1%
-			carryallo: 1%
+			carryall.auto: 1%
 			rifle: 2%
 			bazooka: 2%
 			medic: 0.5%
@@ -402,9 +398,7 @@ Player:
 			pwrh: 10%
 			pwro: 10%
 		UnitsToBuild:
-			carryalla: 1%
-			carryallh: 1%
-			carryallo: 1%
+			carryall.auto: 1%
 			rifle: 15%
 			bazooka: 13%
 			medic: 2%

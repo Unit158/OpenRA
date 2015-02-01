@@ -225,3 +225,18 @@ BADR.Husk:
 		Image: carryall
 	WithShadow:
 
+CARRYALL.auto:
+	Inherits: ^CARRYALL
+	RenderUnit:
+		Image: CARRYALL
+	Buildable:
+		Prerequisites: ~hightech
+
+CARRYALL.auto.starport:
+	Inherits: CARRYALLH
+	Valued:
+		Cost: 1500
+	Buildable:
+		Prerequisites: ~starport
+		Queue: Starport
+

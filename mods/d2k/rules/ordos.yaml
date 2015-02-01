@@ -203,21 +203,6 @@ STEALTHRAIDER:
 		InitialStance: HoldFire
 	-MustBeDestroyed:
 
-CARRYALLO:
-	Inherits: ^CARRYALL
-	RenderUnit:
-		Image: CARRYALL
-	Buildable:
-		Prerequisites: refinery, ~hightecho
-
-CARRYALLO.starport:
-	Inherits: CARRYALLO
-	Valued:
-		Cost: 1500
-	Buildable:
-		Prerequisites: ~starporto
-		Queue: Starport
-
 DEVIATORTANK:
 	Inherits: ^Tank
 	Valued:
