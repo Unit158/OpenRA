@@ -156,8 +156,8 @@ namespace OpenRA.Traits
 			var xAbsolute = Math.Abs(xDelta) << 1;
 			var yAbsolute = Math.Abs(yDelta) << 1;
 
-			var xIncrement = (xDelta < 0) ? -1 : xDelta > 0 ? 1 : 0;
-			var yIncrement = (yDelta < 0) ? -1 : yDelta > 0 ? 1 : 0;
+			var xIncrement = xDelta < 0 ? -1 : xDelta > 0 ? 1 : 0;
+			var yIncrement = yDelta < 0 ? -1 : yDelta > 0 ? 1 : 0;
 
 			var x = source.X;
 			var y = source.Y;
@@ -180,6 +180,7 @@ namespace OpenRA.Traits
 					error += yAbsolute;
 				}
 				while (y != target.Y);
+
 				yield return new CPos(x, y);
 			}
 			else
@@ -199,6 +200,7 @@ namespace OpenRA.Traits
 					error += xAbsolute;
 				}
 				while (y != target.Y);
+
 				yield return new CPos(x, y);
 			}
 		}
