@@ -5,7 +5,14 @@ using System.Text;
 
 namespace OpenRA
 {
-	class Raycaster
+	public class Raycaster
 	{
+		struct CachedLine
+		{
+			WPos[] Locations;
+			int Tick;
+		}
+
+
 	}
 }

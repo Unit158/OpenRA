@@ -146,8 +146,29 @@ namespace OpenRA.Traits
 
 			return (int)a;
 		}
+		
+		public static List<WPos> Line(WPos source, WPos target)
+		{
+			var data = new List<WPos>();
 
-		// Algorithm obtained from ftp://ftp.isc.org/pub/usenet/comp.sources.unix/volume26/line3d
+			var deltaX = source.X - target.X;
+			var deltaY = source.Y - target.Y;
+
+			var xError = 0;
+			var yError = 0;
+
+			var x;
+			var y;
+
+			if(deltaX == deltaY)
+			if(deltaX == 0)
+			else if(deltaY == 0)
+
+
+
+			return data;
+		}
+
 		public static IEnumerable<CPos> Raycast(Map map, WPos source, WPos target)
 		{
 			if(map.TileShape == TileShape.Diamond)
@@ -172,11 +193,11 @@ namespace OpenRA.Traits
 				Math.Abs(delta.Y), 0);
 
 			var cellBoundDelta = new WPos(
-				delta.X > 0 ? 0 : Exts.ISqrt(1 + (delta.Y * delta.Y) / (delta.X * delta.X)),
-				delta.Y > 0 ? 0 : Exts.ISqrt(1 + (delta.X * delta.X) / (delta.Y * delta.Y)), 0);
+				delta.X > 0 ? 0 : Exts.ISqrt(1024 + (delta.Y * delta.Y) / (delta.X * delta.X)),
+				delta.Y > 0 ? 0 : Exts.ISqrt(1024 + (delta.X * delta.X) / (delta.Y * delta.Y)), 0);
 
 			var error = new WPos(
-				delta.X < sideDistX ? (rayPosX - map.) * deltaDistX : (mapX + 1.0 - rayPosX) * deltaDistX
+				(delta.X < 0 ? (source.X - (rCell.X * 1024)) * cellBoundDelta.X : (rCell.X + 1024 - (rCell))) * deltaDistX
 				, 0);
 
 			var xIncrement = Math.Sign(yDelta);
