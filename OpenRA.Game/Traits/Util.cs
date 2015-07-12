@@ -150,23 +150,37 @@ namespace OpenRA.Traits
 		// Algorithm obtained from ftp://ftp.isc.org/pub/usenet/comp.sources.unix/volume26/line3d
 		public static IEnumerable<CPos> Raycast(Map map, WPos source, WPos target)
 		{
+			if(map.TileShape == TileShape.Diamond)
+			{
+				var angle = new WAngle(-45);
+				source = new WPos(
+					(source.X * angle.Cos()) - (source.Y * angle.Sin()),
+					(source.X * angle.Sin()) + (source.Y * angle.Cos()), 0);
+				target = new WPos(
+					(target.X * angle.Cos()) - (target.Y * angle.Sin()),
+					(target.X * angle.Sin()) + (target.Y * angle.Cos()), 0);
+			}
+
 			var rCell = map.CellContaining(source);
 
-			var wposDelta = new WPos(
+			var delta = new WPos(
+				target.X - source.X,
+				target.Y - source.Y, 0);
 
-				,
-				
-				, 0
-				);
+			var absolute = new WPos(
+				Math.Abs(delta.X),
+				Math.Abs(delta.Y), 0);
 
-			var xDelta = target.X - source.X;
-			var yDelta = target.Y - source.Y;
+			var cellBoundDelta = new WPos(
+				delta.X > 0 ? 0 : Exts.ISqrt(1 + (delta.Y * delta.Y) / (delta.X * delta.X)),
+				delta.Y > 0 ? 0 : Exts.ISqrt(1 + (delta.X * delta.X) / (delta.Y * delta.Y)), 0);
 
-			var xAbsolute = Math.Abs(xDelta) << 1;
-			var yAbsolute = Math.Abs(yDelta) << 1;
+			var error = new WPos(
+				delta.X < sideDistX ? (rayPosX - map.) * deltaDistX : (mapX + 1.0 - rayPosX) * deltaDistX
+				, 0);
 
-			var xIncrement = xDelta < 0 ? -1 : xDelta > 0 ? 1 : 0;
-			var yIncrement = yDelta < 0 ? -1 : yDelta > 0 ? 1 : 0;
+			var xIncrement = Math.Sign(yDelta);
+			var yIncrement = Math.Sign(yDelta);
 
 			var x = source.X;
 			var y = source.Y;
@@ -177,7 +191,7 @@ namespace OpenRA.Traits
 
 				do
 				{
-					yield return new CPos(x, y);
+					yield return map.CellContaining(new WPos(x, y, 0));
 
 					if (error >= 0)
 					{
@@ -190,14 +204,14 @@ namespace OpenRA.Traits
 				}
 				while (y != target.Y);
 
-				yield return new CPos(x, y);
+				yield return map.CellContaining(new WPos(x, y, 0));
 			}
 			else
 			{
 				var error = xAbsolute - (yAbsolute >> 1);
 				do
 				{
-					yield return new CPos(x, y);
+					yield return map.CellContaining(new WPos(x, y, 0));
 
 					if (error >= 0)
 					{
@@ -210,7 +224,7 @@ namespace OpenRA.Traits
 				}
 				while (y != target.Y);
 
-				yield return new CPos(x, y);
+				yield return map.CellContaining(new WPos(x, y, 0));
 			}
 		}
 	}

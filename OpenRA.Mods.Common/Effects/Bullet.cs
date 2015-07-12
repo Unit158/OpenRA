@@ -144,10 +144,7 @@ namespace OpenRA.Mods.Common.Effects
 
 			if (info.Blockable)
 			{
-				var cell = world.Map.CellContaining(pos);
-				var nextcell = world.Map.CellContaining(nextpos);
-
-				var cells = OpenRA.Traits.Util.Raycast(cell, nextcell);
+				var cells = OpenRA.Traits.Util.Raycast(world.Map, pos, nextpos);
 
 				foreach (var location in cells)
 				{
