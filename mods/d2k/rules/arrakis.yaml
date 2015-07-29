@@ -11,7 +11,7 @@ spicebloom:
 		Terrain: Spice
 	Immobile:
 	Crushable:
-		CrushClasses: crate
+		CrushClasses: spicebloom
 	Health:
 		HP: 1
 		Radius: 512
