@@ -137,4 +137,12 @@ if (!(Test-Path "GeoLite2-Country.mmdb.gz") -Or (((get-date) - (get-item "GeoLit
 	(New-Object System.Net.WebClient).DownloadFile("http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz", $target)
 }
 
+if (!(Test-Path "MoonSharp.Interpreter.dll"))
+{
+	echo "Fetching MoonSharp from NuGet."
+	./nuget.exe install MoonSharp -Version 0.9.8
+	cp MoonSharp.0.9.8.0/lib/net40-client/MoonSharp.Interpreter.dll .
+	rmdir MoonSharp.0.9.8.0 -Recurse 
+}
+
 cd ..
