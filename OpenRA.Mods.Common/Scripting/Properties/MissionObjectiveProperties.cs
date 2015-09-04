@@ -9,7 +9,7 @@
 #endregion
 
 using System;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Scripting;
 using OpenRA.Traits;
@@ -50,7 +50,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public void MarkCompletedObjective(int id)
 		{
 			if (id < 0 || id >= mo.Objectives.Count)
-				throw new LuaException("Objective ID is out of range.");
+				throw new ScriptRuntimeException("Objective ID is out of range.");
 
 			mo.MarkCompleted(Player, id);
 		}
@@ -62,7 +62,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public void MarkFailedObjective(int id)
 		{
 			if (id < 0 || id >= mo.Objectives.Count)
-				throw new LuaException("Objective ID is out of range.");
+				throw new ScriptRuntimeException("Objective ID is out of range.");
 
 			mo.MarkFailed(Player, id);
 		}
@@ -72,7 +72,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public bool IsObjectiveCompleted(int id)
 		{
 			if (id < 0 || id >= mo.Objectives.Count)
-				throw new LuaException("Objective ID is out of range.");
+				throw new ScriptRuntimeException("Objective ID is out of range.");
 
 			return mo.Objectives[id].State == ObjectiveState.Completed;
 		}
@@ -82,7 +82,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public bool IsObjectiveFailed(int id)
 		{
 			if (id < 0 || id >= mo.Objectives.Count)
-				throw new LuaException("Objective ID is out of range.");
+				throw new ScriptRuntimeException("Objective ID is out of range.");
 
 			return mo.Objectives[id].State == ObjectiveState.Failed;
 		}
@@ -92,7 +92,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public string GetObjectiveDescription(int id)
 		{
 			if (id < 0 || id >= mo.Objectives.Count)
-				throw new LuaException("Objective ID is out of range.");
+				throw new ScriptRuntimeException("Objective ID is out of range.");
 
 			return mo.Objectives[id].Description;
 		}
@@ -102,7 +102,7 @@ namespace OpenRA.Mods.Common.Scripting
 		public string GetObjectiveType(int id)
 		{
 			if (id < 0 || id >= mo.Objectives.Count)
-				throw new LuaException("Objective ID is out of range.");
+				throw new ScriptRuntimeException("Objective ID is out of range.");
 
 			return mo.Objectives[id].Type == ObjectiveType.Primary ? "Primary" : "Secondary";
 		}

@@ -9,7 +9,7 @@
 #endregion
 
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Scripting;
 
 namespace OpenRA.Mods.Common.Scripting
@@ -26,13 +26,12 @@ namespace OpenRA.Mods.Common.Scripting
 		}
 
 		[Desc("Returns a table of players filtered by the specified function.")]
-		public Player[] GetPlayers(LuaFunction filter)
+		public Player[] GetPlayers(Closure filter)
 		{
 			return Context.World.Players
 				.Where(p =>
 				{
-					using (var f = filter.Call(p.ToLuaValue(Context)))
-						return f.First().ToBoolean();
+					return filter.Call(p).CastToBool();
 				}).ToArray();
 		}
 	}

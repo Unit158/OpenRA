@@ -10,8 +10,7 @@
 
 using System;
 using System.Linq;
-using Eluant;
-using Eluant.ObjectBinding;
+using MoonSharp.Interpreter;
 using OpenRA.Scripting;
 using OpenRA.Support;
 
@@ -20,7 +19,9 @@ namespace OpenRA
 	/// <summary>
 	/// 1d world distance - 1024 units = 1 cell.
 	/// </summary>
-	public struct WDist : IComparable, IComparable<WDist>, IEquatable<WDist>, IScriptBindable, ILuaAdditionBinding, ILuaSubtractionBinding, ILuaEqualityBinding, ILuaTableBinding
+	
+	[MoonSharpUserData]
+	public struct WDist : IComparable, IComparable<WDist>, IEquatable<WDist>, IScriptBindable
 	{
 		public readonly int Length;
 		public long LengthSquared { get { return (long)Length * (long)Length; } }
@@ -104,54 +105,22 @@ namespace OpenRA
 
 		public override string ToString() { return Length.ToString(); }
 
-		#region Scripting interface
-		public LuaValue Add(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			WDist a;
-			WDist b;
-			if (!left.TryGetClrValue<WDist>(out a) || !right.TryGetClrValue<WDist>(out b))
-				throw new LuaException("Attempted to call WDist.Add(WDist, WDist) with invalid arguments.");
-
-			return new LuaCustomClrObject(a + b);
-		}
-
-		public LuaValue Subtract(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			WDist a;
-			WDist b;
-			if (!left.TryGetClrValue<WDist>(out a) || !right.TryGetClrValue<WDist>(out b))
-				throw new LuaException("Attempted to call WDist.Subtract(WDist, WDist) with invalid arguments.");
-
-			return new LuaCustomClrObject(a - b);
-		}
-
-		public LuaValue Equals(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			WDist a;
-			WDist b;
-			if (!left.TryGetClrValue<WDist>(out a) || !right.TryGetClrValue<WDist>(out b))
-				throw new LuaException("Attempted to call WDist.Equals(WDist, WDist) with invalid arguments.");
-
-			return a == b;
-		}
-
-		public LuaValue this[LuaRuntime runtime, LuaValue key]
+		public DynValue this[Script runtime, DynValue key]
 		{
 			get
 			{
 				switch (key.ToString())
 				{
-					case "Length": return Length;
-					case "Range": Game.Debug("WRange.Range is deprecated. Use WDist.Length instead"); return Length;
-					default: throw new LuaException("WDist does not define a member '{0}'".F(key));
+					case "Length": return DynValue.FromObject(runtime, Length);
+					case "Range": Game.Debug("WRange.Range is deprecated. Use WDist.Length instead"); return DynValue.FromObject(runtime, Length);
+					default: throw new ScriptRuntimeException("WDist does not define a member '{0}'".F(key));
 				}
 			}
 
 			set
 			{
-				throw new LuaException("WDist is read-only. Use WDist.New to create a new value");
+				throw new ScriptRuntimeException("WDist is read-only. Use WDist.New to create a new value");
 			}
 		}
-		#endregion
 	}
 }

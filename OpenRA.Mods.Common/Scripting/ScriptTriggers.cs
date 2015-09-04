@@ -11,7 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Primitives;
 using OpenRA.Scripting;
 using OpenRA.Traits;
@@ -42,19 +42,19 @@ namespace OpenRA.Mods.Common.Scripting
 		public event Action<Actor, Actor> OnProducedInternal = (a, b) => { };
 		public event Action<Actor, Actor> OnOtherProducedInternal = (a, b) => { };
 
-		public Dictionary<Trigger, List<Pair<LuaFunction, ScriptContext>>> Triggers = new Dictionary<Trigger, List<Pair<LuaFunction, ScriptContext>>>();
+		public Dictionary<Trigger, List<Pair<Closure, ScriptContext>>> Triggers = new Dictionary<Trigger, List<Pair<Closure, ScriptContext>>>();
 
 		public ScriptTriggers(World world)
 		{
 			this.world = world;
 
 			foreach (Trigger t in Enum.GetValues(typeof(Trigger)))
-				Triggers.Add(t, new List<Pair<LuaFunction, ScriptContext>>());
+				Triggers.Add(t, new List<Pair<Closure, ScriptContext>>());
 		}
 
-		public void RegisterCallback(Trigger trigger, LuaFunction func, ScriptContext context)
+		public void RegisterCallback(Trigger trigger, Closure func, ScriptContext context)
 		{
-			Triggers[trigger].Add(Pair.New((LuaFunction)func.CopyReference(), context));
+			Triggers[trigger].Add(Pair.New(func, context));
 		}
 
 		public void TickIdle(Actor self)
@@ -66,8 +66,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-						f.First.Call(a).Dispose();
+					f.First.Call(self);
 				}
 				catch (Exception ex)
 				{
@@ -86,9 +85,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-					using (var b = e.Attacker.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(self, e.Attacker);
 				}
 				catch (Exception ex)
 				{
@@ -108,9 +105,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-					using (var b = e.Attacker.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(self, e.Attacker);
 				}
 				catch (Exception ex)
 				{
@@ -133,9 +128,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-					using (var b = other.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(self, other);
 				}
 				catch (Exception ex)
 				{
@@ -157,8 +150,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = player.ToLuaValue(f.Second))
-						f.First.Call(a).Dispose();
+					f.First.Call(player);
 				}
 				catch (Exception ex)
 				{
@@ -173,16 +165,15 @@ namespace OpenRA.Mods.Common.Scripting
 			if (world.Disposing)
 				return;
 
-			foreach (var f in Triggers[Trigger.OnPlayerLost])
+			foreach (var func in Triggers[Trigger.OnPlayerLost])
 			{
 				try
 				{
-					using (var a = player.ToLuaValue(f.Second))
-						f.First.Call(a).Dispose();
+					func.First.Call(player);
 				}
 				catch (Exception ex)
 				{
-					f.Second.FatalError(ex.Message);
+					func.Second.FatalError(ex.Message);
 					return;
 				}
 			}
@@ -197,9 +188,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = player.ToLuaValue(f.Second))
-					using (var b = id.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+						f.First.Call(player, id);
 				}
 				catch (Exception ex)
 				{
@@ -218,9 +207,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = player.ToLuaValue(f.Second))
-					using (var b = id.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(player, id);
 				}
 				catch (Exception ex)
 				{
@@ -239,9 +226,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = player.ToLuaValue(f.Second))
-					using (var b = id.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(player, id);
 				}
 				catch (Exception ex)
 				{
@@ -260,11 +245,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-					using (var b = captor.ToLuaValue(f.Second))
-					using (var c = oldOwner.ToLuaValue(f.Second))
-					using (var d = newOwner.ToLuaValue(f.Second))
-						f.First.Call(a, b, c, d).Dispose();
+					f.First.Call(self, captor, oldOwner, newOwner);
 				}
 				catch (Exception ex)
 				{
@@ -286,9 +267,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-					using (var b = infiltrator.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(self, infiltrator);
 				}
 				catch (Exception ex)
 				{
@@ -307,8 +286,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-						f.First.Call(a).Dispose();
+						f.First.Call(self);
 				}
 				catch (Exception ex)
 				{
@@ -328,8 +306,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-						f.First.Call(a).Dispose();
+					f.First.Call(self);
 				}
 				catch (Exception ex)
 				{
@@ -352,9 +329,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				try
 				{
-					using (var a = producee.ToLuaValue(f.Second))
-					using (var b = produced.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					f.First.Call(producee, produced);
 				}
 				catch (Exception ex)
 				{
@@ -372,33 +347,28 @@ namespace OpenRA.Mods.Common.Scripting
 			if (world.Disposing)
 				return;
 
-			foreach (var f in Triggers[Trigger.OnDiscovered])
+			foreach (var func in Triggers[Trigger.OnDiscovered])
 			{
 				try
 				{
-					using (var a = self.ToLuaValue(f.Second))
-					using (var b = discoverer.ToLuaValue(f.Second))
-						f.First.Call(a, b).Dispose();
+					func.First.Call(self, discoverer);
 				}
 				catch (Exception ex)
 				{
-					f.Second.FatalError(ex.Message);
+					func.Second.FatalError(ex.Message);
 					return;
 				}
 			}
 
-			foreach (var f in Triggers[Trigger.OnPlayerDiscovered])
+			foreach (var func in Triggers[Trigger.OnPlayerDiscovered])
 			{
 				try
 				{
-					using (var a = self.Owner.ToLuaValue(f.Second))
-					using (var b = discoverer.ToLuaValue(f.Second))
-					using (var c = self.ToLuaValue(f.Second))
-						f.First.Call(a, b, c).Dispose();
+					func.First.Call(self.Owner, discoverer, self);
 				}
 				catch (Exception ex)
 				{
-					f.Second.FatalError(ex.Message);
+					func.Second.FatalError(ex.Message);
 					return;
 				}
 			}
@@ -408,7 +378,6 @@ namespace OpenRA.Mods.Common.Scripting
 		{
 			world.AddFrameEndTask(w =>
 			{
-				Triggers[trigger].Select(p => p.First).Do(f => f.Dispose());
 				Triggers[trigger].Clear();
 			});
 		}

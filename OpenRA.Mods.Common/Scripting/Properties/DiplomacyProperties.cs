@@ -9,7 +9,7 @@
 #endregion
 
 using System;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Network;
 using OpenRA.Scripting;
 using OpenRA.Traits;

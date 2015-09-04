@@ -10,7 +10,7 @@
 
 using System;
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Scripting;
 
@@ -31,7 +31,7 @@ namespace OpenRA.Mods.Common.Scripting
 		}
 
 		[Desc("Returns a table of all actors within the requested region, filtered using the specified function.")]
-		public Actor[] ActorsInCircle(WPos location, WDist radius, LuaFunction filter = null)
+		public Actor[] ActorsInCircle(WPos location, WDist radius, Closure filter = null)
 		{
 			var actors = Context.World.FindActorsInCircle(location, radius);
 
@@ -39,8 +39,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				actors = actors.Where(a =>
 				{
-					using (var f = filter.Call(a.ToLuaValue(Context)))
-						return f.First().ToBoolean();
+					return filter.Call(a).CastToBool();
 				});
 			}
 
@@ -48,7 +47,7 @@ namespace OpenRA.Mods.Common.Scripting
 		}
 
 		[Desc("Returns a table of all actors within the requested rectangle, filtered using the specified function.")]
-		public Actor[] ActorsInBox(WPos topLeft, WPos bottomRight, LuaFunction filter = null)
+		public Actor[] ActorsInBox(WPos topLeft, WPos bottomRight, Closure filter = null)
 		{
 			var actors = Context.World.ActorMap.ActorsInBox(topLeft, bottomRight);
 
@@ -56,8 +55,7 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				actors = actors.Where(a =>
 				{
-					using (var f = filter.Call(a.ToLuaValue(Context)))
-						return f.First().ToBoolean();
+					return filter.Call(a).CastToBool();
 				});
 			}
 

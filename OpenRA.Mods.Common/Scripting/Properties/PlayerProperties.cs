@@ -11,7 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Graphics;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Scripting;
@@ -67,7 +67,7 @@ namespace OpenRA.Mods.Common.Scripting
 
 			ActorInfo ai;
 			if (!Context.World.Map.Rules.Actors.TryGetValue(type, out ai))
-				throw new LuaException("Unknown actor type '{0}'".F(type));
+				throw new ScriptRuntimeException("Unknown actor type '{0}'".F(type));
 
 			result.AddRange(Player.World.ActorMap.ActorsInWorld()
 				.Where(actor => actor.Owner == Player && !actor.IsDead && actor.IsInWorld && actor.Info.Name == ai.Name));

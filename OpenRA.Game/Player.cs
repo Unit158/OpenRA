@@ -11,8 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eluant;
-using Eluant.ObjectBinding;
+using MoonSharp.Interpreter;
 using OpenRA.Graphics;
 using OpenRA.Network;
 using OpenRA.Primitives;
@@ -24,7 +23,8 @@ namespace OpenRA
 	public enum PowerState { Normal, Low, Critical }
 	public enum WinState { Undefined, Won, Lost }
 
-	public class Player : IScriptBindable, IScriptNotifyBind, ILuaTableBinding, ILuaEqualityBinding, ILuaToStringBinding
+	[MoonSharpUserData]
+	public class Player : IScriptBindable, IScriptNotifyBind
 	{
 		public readonly Actor PlayerActor;
 		public readonly HSLColor Color;
@@ -173,8 +173,6 @@ namespace OpenRA
 
 		public bool HasFogVisibility { get { return fogVisibilities.Any(f => f.HasFogVisibility(this)); } }
 
-		#region Scripting interface
-
 		Lazy<ScriptPlayerInterface> luaInterface;
 		public void OnScriptBind(ScriptContext context)
 		{
@@ -182,26 +180,10 @@ namespace OpenRA
 				luaInterface = Exts.Lazy(() => new ScriptPlayerInterface(context, this));
 		}
 
-		public LuaValue this[LuaRuntime runtime, LuaValue keyValue]
+		public DynValue this[Script runtime, DynValue keyValue]
 		{
 			get { return luaInterface.Value[runtime, keyValue]; }
 			set { luaInterface.Value[runtime, keyValue] = value; }
 		}
-
-		public LuaValue Equals(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			Player a, b;
-			if (!left.TryGetClrValue(out a) || !right.TryGetClrValue(out b))
-				return false;
-
-			return a == b;
-		}
-
-		public LuaValue ToString(LuaRuntime runtime)
-		{
-			return "Player ({0})".F(PlayerName);
-		}
-
-		#endregion
 	}
 }

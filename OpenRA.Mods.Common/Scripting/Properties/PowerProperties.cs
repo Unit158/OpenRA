@@ -11,7 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Scripting;
 using OpenRA.Traits;

@@ -9,13 +9,15 @@
 #endregion
 
 using System;
-using Eluant;
-using Eluant.ObjectBinding;
+using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Interop;
+using MoonSharp.Interpreter.Interop.BasicDescriptors;
 using OpenRA.Scripting;
 
 namespace OpenRA
 {
-	public struct CPos : IScriptBindable, ILuaAdditionBinding, ILuaSubtractionBinding, ILuaEqualityBinding, ILuaTableBinding, IEquatable<CPos>
+	[MoonSharpUserData]
+	public struct CPos : IScriptBindable, IEquatable<CPos>, IMemberDescriptor
 	{
 		public readonly int X, Y;
 
@@ -67,55 +69,47 @@ namespace OpenRA
 			return new MPos(u, v);
 		}
 
-		#region Scripting interface
-
-		public LuaValue Add(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			CPos a;
-			CVec b;
-			if (!left.TryGetClrValue<CPos>(out a) || !right.TryGetClrValue<CVec>(out b))
-				throw new LuaException("Attempted to call CPos.Add(CPos, CVec) with invalid arguments ({0}, {1})".F(left.WrappedClrType().Name, right.WrappedClrType().Name));
-
-			return new LuaCustomClrObject(a + b);
-		}
-
-		public LuaValue Subtract(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			CPos a;
-			CVec b;
-			if (!left.TryGetClrValue<CPos>(out a) || !right.TryGetClrValue<CVec>(out b))
-				throw new LuaException("Attempted to call CPos.Subtract(CPos, CVec) with invalid arguments ({0}, {1})".F(left.WrappedClrType().Name, right.WrappedClrType().Name));
-
-			return new LuaCustomClrObject(a - b);
-		}
-
-		public LuaValue Equals(LuaRuntime runtime, LuaValue left, LuaValue right)
-		{
-			CPos a, b;
-			if (!left.TryGetClrValue<CPos>(out a) || !right.TryGetClrValue<CPos>(out b))
-				return false;
-
-			return a == b;
-		}
-
-		public LuaValue this[LuaRuntime runtime, LuaValue key]
+		public DynValue this[Script runtime, DynValue key]
 		{
 			get
 			{
 				switch (key.ToString())
 				{
-					case "X": return X;
-					case "Y": return Y;
-					default: throw new LuaException("CPos does not define a member '{0}'".F(key));
+					case "X": return DynValue.FromObject(runtime, X);
+					case "Y": return DynValue.FromObject(runtime, Y);
+					default: throw new ScriptRuntimeException("CPos does not define a member '{0}'".F(key));
 				}
 			}
 
 			set
 			{
-				throw new LuaException("CPos is read-only. Use CPos.New to create a new value");
+				throw new ScriptRuntimeException("CPos is read-only. Use CPos.New to create a new value");
 			}
 		}
 
-		#endregion
+		public DynValue GetValue(Script script, object obj)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool IsStatic
+		{
+			get { return false; }
+		}
+
+		public MemberDescriptorAccess MemberAccess
+		{
+			get { return MemberDescriptorAccess.CanRead; }
+		}
+
+		public string Name
+		{
+			get { return "CPos"; }
+		}
+
+		public void SetValue(Script script, object obj, DynValue value)
+		{
+			throw new ScriptRuntimeException("CPos is immutable. Use CPos.New to create a new value.");
+		}
 	}
 }

@@ -9,7 +9,7 @@
 #endregion
 
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Mods.Common.Traits;
 using OpenRA.Primitives;
 using OpenRA.Scripting;
@@ -22,18 +22,18 @@ namespace OpenRA.Mods.Common.Scripting
 		public ActorGlobal(ScriptContext context) : base(context) { }
 
 		[Desc("Create a new actor. initTable specifies a list of key-value pairs that defines the initial parameters for the actor's traits.")]
-		public Actor Create(string type, bool addToWorld, LuaTable initTable)
+		public Actor Create(string type, bool addToWorld, Table initTable)
 		{
 			var initDict = new TypeDictionary();
 
 			// Convert table entries into ActorInits
-			foreach (var kv in initTable)
+			foreach (var kv in initTable.Pairs)
 			{
 				// Find the requested type
 				var typeName = kv.Key.ToString();
 				var initType = Game.ModData.ObjectCreator.FindType(typeName + "Init");
 				if (initType == null)
-					throw new LuaException("Unknown initializer type '{0}'".F(typeName));
+					throw new ScriptRuntimeException("Unknown initializer type '{0}'".F(typeName));
 
 				// Cast it up to an IActorInit<T>
 				var genericType = initType.GetInterfaces()
@@ -42,9 +42,9 @@ namespace OpenRA.Mods.Common.Scripting
 				var valueType = innerType.IsEnum ? typeof(int) : innerType;
 
 				// Try and coerce the table value to the required type
-				object value;
-				if (!kv.Value.TryGetClrValue(valueType, out value))
-					throw new LuaException("Invalid data type for '{0}' (expected '{1}')".F(typeName, valueType.Name));
+				object value = kv.Value.UserData.Object;
+				//if (!kv.Value.TryGetClrValue(valueType, out value))
+				//	throw new ScriptRuntimeException("Invalid data type for '{0}' (expected '{1}')".F(typeName, valueType.Name));
 
 				// Construct the ActorInit. Phew!
 				var test = initType.GetConstructor(new[] { innerType }).Invoke(new[] { value });
@@ -64,7 +64,7 @@ namespace OpenRA.Mods.Common.Scripting
 		{
 			ActorInfo ai;
 			if (!Context.World.Map.Rules.Actors.TryGetValue(type, out ai))
-				throw new LuaException("Unknown actor type '{0}'".F(type));
+				throw new ScriptRuntimeException("Unknown actor type '{0}'".F(type));
 
 			return ai.GetBuildTime();
 		}
@@ -74,7 +74,7 @@ namespace OpenRA.Mods.Common.Scripting
 		{
 			ActorInfo ai;
 			if (!Context.World.Map.Rules.Actors.TryGetValue(type, out ai))
-				throw new LuaException("Unknown actor type '{0}'".F(type));
+				throw new ScriptRuntimeException("Unknown actor type '{0}'".F(type));
 
 			var pi = ai.Traits.GetOrDefault<ICruiseAltitudeInfo>();
 			return pi != null ? pi.GetCruiseAltitude().Length : 0;

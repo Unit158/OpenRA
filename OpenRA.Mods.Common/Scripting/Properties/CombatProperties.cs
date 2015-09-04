@@ -10,7 +10,7 @@
 
 using System;
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Activities;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Traits;
@@ -66,14 +66,13 @@ namespace OpenRA.Mods.Common.Scripting
 		[ScriptActorPropertyActivity]
 		[Desc("Patrol along a set of given waypoints until a condition becomes true. " +
 			"The actor will wait for `wait` ticks at each waypoint.")]
-		public void PatrolUntil(CPos[] waypoints, LuaFunction func, int wait = 0)
+		public void PatrolUntil(CPos[] waypoints, Closure func, int wait = 0)
 		{
 			Patrol(waypoints, false, wait);
 
-			var repeat = func.Call(Self.ToLuaValue(Context)).First().ToBoolean();
+			var repeat = func.Call(Self).CastToBool();
 			if (repeat)
-				using (var f = func.CopyReference() as LuaFunction)
-					Self.QueueActivity(new CallFunc(() => PatrolUntil(waypoints, f, wait)));
+				Self.QueueActivity(new CallFunc(() => PatrolUntil(waypoints, func, wait)));
 		}
 
 		[Desc("Attack the target actor. The target actor needs to be visible.")]

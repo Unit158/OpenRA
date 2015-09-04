@@ -11,7 +11,7 @@
 using System;
 using System.Drawing;
 using System.IO;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Effects;
 using OpenRA.FileFormats;
 using OpenRA.FileSystem;
@@ -56,7 +56,7 @@ namespace OpenRA.Mods.Common.Scripting
 
 		Action onComplete;
 		[Desc("Play track defined in music.yaml or keep it empty for a random song.")]
-		public void PlayMusic(string track = null, LuaFunction func = null)
+		public void PlayMusic(string track = null, Closure func = null)
 		{
 			if (!playlist.IsMusicAvailable)
 				return;
@@ -66,15 +66,13 @@ namespace OpenRA.Mods.Common.Scripting
 
 			if (func != null)
 			{
-				var f = func.CopyReference() as LuaFunction;
 				onComplete = () =>
 				{
 					try
 					{
-						using (f)
-							f.Call().Dispose();
+						func.Call();
 					}
-					catch (LuaException e)
+					catch (ScriptRuntimeException e)
 					{
 						Context.FatalError(e.Message);
 					}
@@ -94,19 +92,17 @@ namespace OpenRA.Mods.Common.Scripting
 
 		Action onCompleteFullscreen;
 		[Desc("Play a VQA video fullscreen. File name has to include the file extension.")]
-		public void PlayMovieFullscreen(string movie, LuaFunction func = null)
+		public void PlayMovieFullscreen(string movie, Closure func = null)
 		{
 			if (func != null)
 			{
-				var f = func.CopyReference() as LuaFunction;
 				onCompleteFullscreen = () =>
 				{
 					try
 					{
-						using (f)
-							f.Call().Dispose();
+						func.Call();
 					}
-					catch (LuaException e)
+					catch (ScriptRuntimeException e)
 					{
 						Context.FatalError(e.Message);
 					}
@@ -122,19 +118,17 @@ namespace OpenRA.Mods.Common.Scripting
 		Action onCompleteRadar;
 		[Desc("Play a VQA video in the radar window. File name has to include the file extension. " +
 			"Returns true on success, if the movie wasn't found the function returns false and the callback is executed.")]
-		public bool PlayMovieInRadar(string movie, LuaFunction playComplete = null)
+		public bool PlayMovieInRadar(string movie, Closure playComplete = null)
 		{
 			if (playComplete != null)
 			{
-				var f = playComplete.CopyReference() as LuaFunction;
 				onCompleteRadar = () =>
 				{
 					try
 					{
-						using (f)
-							f.Call().Dispose();
+						playComplete.Call();
 					}
-					catch (LuaException e)
+					catch (ScriptRuntimeException e)
 					{
 						Context.FatalError(e.Message);
 					}

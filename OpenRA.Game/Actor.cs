@@ -12,8 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Eluant;
-using Eluant.ObjectBinding;
+using MoonSharp.Interpreter;
 using OpenRA.Activities;
 using OpenRA.Graphics;
 using OpenRA.Primitives;
@@ -22,7 +21,8 @@ using OpenRA.Traits;
 
 namespace OpenRA
 {
-	public sealed class Actor : IScriptBindable, IScriptNotifyBind, ILuaTableBinding, ILuaEqualityBinding, ILuaToStringBinding, IEquatable<Actor>, IDisposable
+	[MoonSharpUserData]
+	public sealed class Actor : IScriptBindable, IScriptNotifyBind, IEquatable<Actor>, IDisposable
 	{
 		public readonly ActorInfo Info;
 
@@ -295,8 +295,6 @@ namespace OpenRA
 			return false;
 		}
 
-		#region Scripting interface
-
 		Lazy<ScriptActorInterface> luaInterface;
 		public void OnScriptBind(ScriptContext context)
 		{
@@ -304,31 +302,20 @@ namespace OpenRA
 				luaInterface = Exts.Lazy(() => new ScriptActorInterface(context, this));
 		}
 
-		public LuaValue this[LuaRuntime runtime, LuaValue keyValue]
+		public DynValue this[Script runtime, DynValue keyValue]
 		{
 			get { return luaInterface.Value[runtime, keyValue]; }
 			set { luaInterface.Value[runtime, keyValue] = value; }
 		}
 
-		public LuaValue Equals(LuaRuntime runtime, LuaValue left, LuaValue right)
+		public DynValue ToString(Script runtime)
 		{
-			Actor a, b;
-			if (!left.TryGetClrValue<Actor>(out a) || !right.TryGetClrValue<Actor>(out b))
-				return false;
-
-			return a == b;
-		}
-
-		public LuaValue ToString(LuaRuntime runtime)
-		{
-			return "Actor ({0})".F(this);
+			return DynValue.FromObject(runtime, "Actor ({0})".F(this));
 		}
 
 		public bool HasScriptProperty(string name)
 		{
 			return luaInterface.Value.ContainsKey(name);
 		}
-
-		#endregion
 	}
 }

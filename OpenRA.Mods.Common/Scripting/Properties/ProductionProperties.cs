@@ -11,7 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eluant;
+using MoonSharp.Interpreter;
 using OpenRA.Mods.Common.Activities;
 using OpenRA.Mods.Common.Scripting;
 using OpenRA.Mods.Common.Traits;
@@ -37,7 +37,7 @@ namespace OpenRA.Mods.Common.Scripting
 		{
 			ActorInfo actorInfo;
 			if (!Self.World.Map.Rules.Actors.TryGetValue(actorType, out actorInfo))
-				throw new LuaException("Unknown actor type '{0}'".F(actorType));
+				throw new ScriptRuntimeException("Unknown actor type '{0}'".F(actorType));
 
 			Self.QueueActivity(new WaitFor(() => p.Produce(Self, actorInfo, factionVariant)));
 		}
@@ -99,7 +99,7 @@ namespace OpenRA.Mods.Common.Scripting
 			"If an actionFunc is given, it will be called as actionFunc(Actor[] actors) once " +
 			"production of all actors has been completed.  The actors array is guaranteed to " +
 			"only contain alive actors.")]
-		public bool Build(string[] actorTypes, LuaFunction actionFunc = null)
+		public bool Build(string[] actorTypes, Closure actionFunc = null)
 		{
 			if (triggers.Triggers[Trigger.OnProduction].Any())
 				return false;
@@ -115,7 +115,6 @@ namespace OpenRA.Mods.Common.Scripting
 				var playerIndex = Self.Owner.ClientIndex;
 				var squadSize = actorTypes.Length;
 				var squad = new List<Actor>();
-				var func = actionFunc.CopyReference() as LuaFunction;
 
 				Action<Actor, Actor> productionHandler = (_, __) => { };
 				productionHandler = (factory, unit) =>
@@ -129,9 +128,7 @@ namespace OpenRA.Mods.Common.Scripting
 					squad.Add(unit);
 					if (squad.Count >= squadSize)
 					{
-						using (func)
-						using (var luaSquad = squad.Where(u => !u.IsDead).ToArray().ToLuaValue(Context))
-							func.Call(luaSquad).Dispose();
+						actionFunc.Call(squad.Where(u => !u.IsDead));
 
 						triggers.OnProducedInternal -= productionHandler;
 					}
@@ -163,7 +160,7 @@ namespace OpenRA.Mods.Common.Scripting
 			var bi = ri.Traits.GetOrDefault<BuildableInfo>();
 
 			if (bi == null)
-				throw new LuaException("Actor of type {0} cannot be produced".F(actorType));
+				throw new ScriptRuntimeException("Actor of type {0} cannot be produced".F(actorType));
 			else
 				return bi;
 		}
@@ -205,7 +202,7 @@ namespace OpenRA.Mods.Common.Scripting
 			"production of all actors has been completed. The actors array is guaranteed to " +
 			"only contain alive actors. Note: This function will fail to work when called " +
 			"during the first tick.")]
-		public bool Build(string[] actorTypes, LuaFunction actionFunc = null)
+		public bool Build(string[] actorTypes, Closure actionFunc = null)
 		{
 			var typeToQueueMap = new Dictionary<string, string>();
 			foreach (var actorType in actorTypes.Distinct())
@@ -223,16 +220,13 @@ namespace OpenRA.Mods.Common.Scripting
 			{
 				var squadSize = actorTypes.Length;
 				var squad = new List<Actor>();
-				var func = actionFunc.CopyReference() as LuaFunction;
 
 				Action<Actor, Actor> productionHandler = (factory, unit) =>
 				{
 					squad.Add(unit);
 					if (squad.Count >= squadSize)
 					{
-						using (func)
-						using (var luaSquad = squad.Where(u => !u.IsDead).ToArray().ToLuaValue(Context))
-							func.Call(luaSquad).Dispose();
+						actionFunc.Call(squad.Where(u => !u.IsDead));
 
 						foreach (var q in queueTypes)
 							productionHandlers.Remove(q);
@@ -270,7 +264,7 @@ namespace OpenRA.Mods.Common.Scripting
 			var bi = ri.Traits.GetOrDefault<BuildableInfo>();
 
 			if (bi == null)
-				throw new LuaException("Actor of type {0} cannot be produced".F(actorType));
+				throw new ScriptRuntimeException("Actor of type {0} cannot be produced".F(actorType));
 			else
 				return bi;
 		}
