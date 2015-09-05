@@ -123,13 +123,6 @@ if (!(Test-Path "SDL2-CS.dll"))
 	(New-Object System.Net.WebClient).DownloadFile("https://github.com/OpenRA/SDL2-CS/releases/download/20150709/SDL2-CS.dll", $target)
 }
 
-if (!(Test-Path "Eluant.dll"))
-{
-	echo "Fetching Eluant from GitHub."
-	$target = Join-Path $pwd.ToString() "Eluant.dll"
-	(New-Object System.Net.WebClient).DownloadFile("https://github.com/OpenRA/Eluant/releases/download/20140425/Eluant.dll", $target)
-}
-
 if (!(Test-Path "GeoLite2-Country.mmdb.gz") -Or (((get-date) - (get-item "GeoLite2-Country.mmdb.gz").LastWriteTime) -gt (new-timespan -days 30)))
 {
 	echo "Updating GeoIP country database from MaxMind."
