@@ -122,8 +122,7 @@ namespace OpenRA.Network
 								Game.AddChatLine(Color.White, "", pausetext);
 							}
 
-							orderManager.World.Paused = pause;
-							orderManager.World.PredictedPaused = pause;
+							orderManager.World.SetLocalPauseState(pause);
 						}
 
 						break;
