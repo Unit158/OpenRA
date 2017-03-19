@@ -212,7 +212,13 @@ namespace OpenRA
 			MusicPlaying = true;
 			soundEngine.PauseSound(music, false);
 		}
-
+		
+		public void PauseSound(ISound sound, bool paused)
+		{
+			if (sound != null)
+				soundEngine.PauseSound(sound, paused);
+		}
+		
 		public void StopSound(ISound sound)
 		{
 			if (sound != null)
